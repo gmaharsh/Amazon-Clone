@@ -7,6 +7,10 @@ export const initialState = {
 export const getBasketTotal = (basket) =>
     basket?.reduce((amount, item) => item.price + amount, 0);
 
+export const actionTypes = {
+    SET_USER : "SET_USER"
+};
+
 const reducer = (state, action) => {
     console.log(action);
     switch (action.type) {

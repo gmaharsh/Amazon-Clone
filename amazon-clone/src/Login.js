@@ -1,13 +1,31 @@
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { auth } from './firebase';
+import { auth, provider } from './firebase';
 import './Login.css';
+import { useStateValue } from './StateProvider';
+import { actionTypes } from './reducer';
 
 
 function Login() {
     const history = useHistory();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
+    const [{}, dispatch] = useStateValue();
+
+    const registerUsinggmail = e => {
+        e.preventDefault();
+
+        auth.signInWithPopup(provider)
+            .then(result => {
+                dispatch({
+                    type: actionTypes.SET_USER,
+                    user: result.user
+                })
+                history.push('/')
+            })
+            .catch((error) => alert(error.message));
+    }
 
     const signIn = e => {
         e.preventDefault();
@@ -79,6 +97,10 @@ function Login() {
                     className="login__registerButton"
                     onClick={register}
                 >Create your Amazon Account</button>
+                <button
+                    className="login__registerButton"
+                    onClick={registerUsinggmail}
+                >Login Using Gmail</button>
             </div>
         </div>
     )
