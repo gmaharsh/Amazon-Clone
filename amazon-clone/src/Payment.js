@@ -6,7 +6,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import CurrencyFormat from 'react-currency-format';
 import { getBasketTotal } from './reducer';
-import Axios from 'axios';
+import axios from './axios';
 
 function Payment() {
 
@@ -23,19 +23,24 @@ function Payment() {
     const [clientSecret, setclientSecret] = useState(true);
 
     useEffect(() => {
-        //generate the special stripe secret which allows us to charge a customer
-
+        // generate the special stripe secret which allows us to charge a customer
         const getClientSecret = async () => {
-            const response = await Axios({
+            console.log("Activated")
+            const response = await axios({
                 method: 'post',
-                //Stripe Expects the total in a currencies subunits
-                url: `/payments/create?Total=${getBasketTotal(basket) * 100}`
+                // Stripe expects the total in a currencies subunits
+                url: `/payments/create?total=${getBasketTotal(basket) * 100}`
             });
+
+            console.log("Response is:- " ,response);
+
             setclientSecret(response.data.clientSecret)
         }
 
         getClientSecret();
     }, [basket])
+
+    console.log('THE SECRET IS >>>', clientSecret)
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -43,10 +48,10 @@ function Payment() {
 
         const payload = await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
-                card : elements.getElement(CardElement)
+                card: elements.getElement(CardElement)
             }
         }).then(({ paymentIntent }) => {
-            //paymentIntent = payment Confirmation
+            // paymentIntent = payment confirmation
 
             setSucedded(true);
             setError(null);
@@ -54,6 +59,8 @@ function Payment() {
             history.replace('/orders')
         })
     }
+
+
     const handleChange = event => { 
         setDisabled(event.empty);
         setError(event.error ? event.error.message : "")
